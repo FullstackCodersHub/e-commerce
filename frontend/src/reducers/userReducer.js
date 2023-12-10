@@ -16,6 +16,9 @@ const userSlice = createSlice({
         setUser(state, action) {
             return action.payload
         },
+        resetUser() {
+            return null
+        },
         appendCart(state, action) {
             if (state.id === action.payload.user_id) {
                 return {
@@ -56,7 +59,7 @@ const userSlice = createSlice({
 })
 
 
-export const { appendUser, setUser, appendCart, deleteCart, decrease, increase } = userSlice.actions
+export const { appendUser, setUser, appendCart, deleteCart, decrease, increase, resetUser } = userSlice.actions
 export default userSlice.reducer
 
 export const creatUser = (user) => {
@@ -149,13 +152,29 @@ export const currentUser = () => {
 }
 
 export const updateUser = (update) => {
-    return async (dispatch) => {
+    return async () => {
         try {
-            const userToUpdate = await userService.update(update)
-            console.log(userToUpdate, 'from thunk')
+            await userService.update(update)
+
         } catch (error) {
             console.log(error.response.data.error)
         }
+    }
+}
+
+export const deleteUser = () => {
+
+    return async (dispatch) => {
+
+        const response = await userService.remove()
+
+
+        if (!response.valid) {
+            document.cookie = 'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        }
+        dispatch(resetUser())
+
+
     }
 }
 

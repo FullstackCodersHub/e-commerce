@@ -37,22 +37,26 @@ const deserializeUser = async (req, res, next) => {
 
     //get from the lodash is used for safely accessing nested object without throwin error
     const accessToken = get(req, "cookies.accessToken") || get(req, "headers.authorization", "").replace(/^Bearer\s/, "")
-    //const accessSecoken = get(req, "cookies.access123") || get(req, "headers.authorization", "").replace(/^Bearer\s/, "")
-    // const refreshToken = get(req, "cookies.refreshToken") || get(req, "headers.x-refresh");
 
 
     const { decoded, expired } = verifyJwt(accessToken)
     if (decoded === null) {
         return res.status(404).json({ error: 'this is error' })
     }
-    const decodedUser = await prisma.user.findUnique({
+    let decodedUser = await prisma.user.findUnique({
         where: {
             email: decoded.email
         },
         include: {
-            cartItems: true
+            cartItems: true,
+
         }
     })
+
+    const userWithSession = {
+        ...decodedUser, session: decoded.session
+    }
+
 
     //console.log(decodedUser, 'dcodedUser')
 
@@ -79,6 +83,7 @@ const deserializeUser = async (req, res, next) => {
 
 
     // }
+    //console.log(decodedUser, 'decoded')
 
     if (!decoded) {
 
@@ -87,7 +92,7 @@ const deserializeUser = async (req, res, next) => {
     if (expired) {
         return res.status(401).json({ error: 'token expired logged in again' })
     }
-    res.locals.user = decodedUser
+    res.locals.user = userWithSession
     next()
 }
 

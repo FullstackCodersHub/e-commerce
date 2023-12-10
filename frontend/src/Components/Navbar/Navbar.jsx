@@ -4,15 +4,20 @@ import logo from "../assets/forth.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-//import { ShopContext } from "../../Context/ShopContext";
+import { deleteUser } from "../../reducers/userReducer";
 
 export const Navbar = () => {
   const [menu, setMenu] = useState("Home");
-  //const { getTotalCartItems } = useContext(ShopContext);
+  const dispatch = useDispatch();
+
   const loggedInUser = useSelector((state) => state.user);
   const userWithCart = useSelector((state) => state.user);
+  const handleLogout = () => {
+    console.log("handleLogout");
+    dispatch(deleteUser());
+  };
   const total =
     userWithCart && userWithCart.cartItems ? userWithCart.cartItems.length : 0;
 
@@ -58,7 +63,7 @@ export const Navbar = () => {
         {loggedInUser ? (
           <div>
             <div>welcome, {loggedInUser.name}</div>
-            <button>Logout</button>
+            <button onClick={handleLogout}>Logout</button>
           </div>
         ) : (
           <Link to="/login">

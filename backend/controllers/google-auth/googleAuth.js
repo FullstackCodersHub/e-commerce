@@ -16,11 +16,6 @@ const accessTokenCookieOptions = {
     secure: false,
 };
 
-// const refreshTokenCookieOptions = {
-//     ...accessTokenCookieOptions,
-//     maxAge: 1800000, // 30min
-// };
-
 
 
 sessionRouter.get('/', deserializeUser, requireUser, async (req, res) => {
@@ -43,9 +38,11 @@ sessionRouter.post('/', async (req, res) => {
     }
     //create a session
     const session = await createSession(user.id)
+    console.log(session, 'session')
 
     //create an access token
     const accessToken = signJwt({ ...user, session: session.id }, '30m')
+
     //create an refresh token
     //const refreshToken = signJwt({ ...user, session: session.id }, '30m')//15min
     //return access and refresh tokens
@@ -53,12 +50,13 @@ sessionRouter.post('/', async (req, res) => {
     // const loggedInuserInjson = JSON.stringify(loggedInuser)
     res.cookie('accessToken', accessToken, {
         maxAge: 1800000,//30min
-        httpOnly: true,
+        httpOnly: false,
         domain: 'localhost', //for the production,set it in config
-        //path: '/',
-        //secure: false,  //for production set to the true
+        path: '/',
+        sameSite: 'strict',
+        secure: false,  //for production set to the true
     })
-    //res.cookie('user', loggedInuserInjson)
+
 
     // res.cookie('refreshToken', refreshToken, {
     //     maxAge: 1800000,//30min
@@ -73,40 +71,64 @@ sessionRouter.post('/', async (req, res) => {
 
 })
 
-sessionRouter.delete('/:id', deserializeUser, async (req, res) => {
-    const categoryId = Number(req.params.id)
-    //const categoryId = req.params.id
+// sessionRouter.delete('/:id', deserializeUser, async (req, res) => {
+//     const categoryId = Number(req.params.id)
+//     //const categoryId = req.params.id
 
 
-    // const sessionId = res.locals.user.session
-    // await updateSession(sessionId, { valid: false })
+//     // const sessionId = res.locals.user.session
+//     // await updateSession(sessionId, { valid: false })
 
-    // return res.send({
-    //     accessToken: null,
-    //     refreshToken: null
+//     // return res.send({
+//     //     accessToken: null,
+//     //     refreshToken: null
 
-    // })
+//     // })
+//     try {
+//         const variation = await prisma.session.findUnique({
+//             where: {
+//                 id: categoryId
+//             }
+//         })
+
+
+//         if (!variation) {
+//             return res.status(404).json({ error: 'User not found' })
+//         }
+
+//         await prisma.session.delete({
+//             where: {
+//                 id: categoryId
+//             }
+//         })
+//         res.json({ message: 'session deleted successfully' })
+
+//     } catch (error) {
+//         console.log(error)
+//     }
+// })
+
+sessionRouter.delete('/', deserializeUser, async (req, res) => {
     try {
-        const variation = await prisma.session.findUnique({
+
+        const sessionId = res.locals.user.session
+
+        const response = await prisma.session.update({
             where: {
-                id: categoryId
+                id: sessionId
+            },
+            data: {
+                valid: false
             }
         })
 
 
-        if (!variation) {
-            return res.status(404).json({ error: 'User not found' })
-        }
+        return res.send(response)
 
-        await prisma.session.delete({
-            where: {
-                id: categoryId
-            }
-        })
-        res.json({ message: 'session deleted successfully' })
+
 
     } catch (error) {
-        console.log(error)
+        console.log(error, 'error from delte api')
     }
 })
 

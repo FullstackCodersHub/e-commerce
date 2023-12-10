@@ -30,5 +30,12 @@ const update = async (objToUpdate) => {
     })
     return request.data
 }
+const remove = async () => {
+    const request = await axios.delete(loginBaseUrl, null, {
+        withCredentials: true
+    })
+    return request.data
 
-export default { create, login, getloggedInUser, update }
+}
+
+export default { create, login, getloggedInUser, update, remove }
