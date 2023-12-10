@@ -1,0 +1,73 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id      Int      @id @default(autoincrement())
+  email String @unique
+  name    String
+  password String?
+  address String?
+  contact String?
+  comments Comment[]
+  cartItems CartItem[]
+  sessions Session[]
+}
+
+
+model Product{
+  product_id   Int @id @default(autoincrement())
+  name   String
+  description  String
+  price    Int
+  category   Category @relation(fields:[category_id],references:[category_id])
+  category_id  Int
+  image   String
+  comments  Comment[]
+  cartItems CartItem[]
+}
+
+
+model Category{
+  category_id   Int @id @default(autoincrement())
+  category_name   String
+  products   Product[]
+}
+
+model Comment{
+  comment_id      Int @id @default(autoincrement())
+  user        User @relation(fields: [user_id], references: [id])
+  user_id  Int
+  product  Product  @relation(fields: [product_id], references: [product_id])
+  product_id   Int
+  comment_text   String
+  timestamp    DateTime @default(now())
+}
+
+model CartItem{
+id   Int @id @default(autoincrement())
+user  User @relation(fields: [user_id], references: [id])
+user_id  Int
+product  Product  @relation(fields: [product_id], references: [product_id])
+product_id   Int
+quantity   Int? @default(0)
+price Int? @default(0)
+timestamp  DateTime @default(now())
+
+}
+
+model Session{
+  id   Int @id @default(autoincrement())
+  user  User @relation(fields: [user_id], references: [id])
+  user_id Int
+  valid Boolean @default(true)
+
+}
+
