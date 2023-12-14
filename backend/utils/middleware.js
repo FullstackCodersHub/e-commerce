@@ -40,8 +40,10 @@ const deserializeUser = async (req, res, next) => {
 
 
     const { decoded, expired } = verifyJwt(accessToken)
-    if (decoded === null) {
-        return res.status(404).json({ error: 'this is error' })
+    console.log(decoded, 'token')
+    console.log(expired, 'expired from middleware')
+    if (!decoded && expired) {
+        return res.status(404).json({ error: 'your token expired,Login again' })
     }
     let decodedUser = await prisma.user.findUnique({
         where: {
@@ -85,13 +87,13 @@ const deserializeUser = async (req, res, next) => {
     // }
     //console.log(decodedUser, 'decoded')
 
-    if (!decoded) {
+    // if (!decoded) {
 
-        return res.status(401).json({ error: 'token invalid' })
-    }
-    if (expired) {
-        return res.status(401).json({ error: 'token expired logged in again' })
-    }
+    //     return res.status(401).json({ error: 'token invalid' })
+    // }
+    // if (expired) {
+    //     return res.status(401).json({ error: 'token expired logged in again' })
+    // }
     res.locals.user = userWithSession
     next()
 }
