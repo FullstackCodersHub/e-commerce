@@ -49,7 +49,8 @@ sessionRouter.post('/', async (req, res) => {
 
     // const loggedInuserInjson = JSON.stringify(loggedInuser)
     res.cookie('accessToken', accessToken, {
-        maxAge: 1800000,//30min
+        //maxAge: 1800000 ,//30min
+        maxAge: 120000,//2min
         httpOnly: false,
         domain: 'localhost', //for the production,set it in config
         path: '/',
@@ -112,18 +113,20 @@ sessionRouter.delete('/', deserializeUser, async (req, res) => {
     try {
 
         const sessionId = res.locals.user.session
+        const updatedSession = await updateSession(sessionId, { valid: false })
+        console.log(updatedSession, 'from delete api ')
 
-        const response = await prisma.session.update({
-            where: {
-                id: sessionId
-            },
-            data: {
-                valid: false
-            }
-        })
+        // const response = await prisma.session.update({
+        //     where: {
+        //         id: sessionId
+        //     },
+        //     data: {
+        //         valid: false
+        //     }
+        // })
 
-
-        return res.send(response)
+        //return updateSession
+        // return res.send(response)ss
 
 
 
