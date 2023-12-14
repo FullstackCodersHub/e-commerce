@@ -34,9 +34,10 @@ const validatePassword = async ({
 
     //const isValid = await user.comparePassword(password);
     if (!passwordCorrect) {
-        return res.status(401).json({
-            error: 'invalid username or password'
-        })
+        return 'invalid username or password'
+        // return res.status(401).json({
+        //     error: 'invalid username or password'
+        // })
     }
 
 
